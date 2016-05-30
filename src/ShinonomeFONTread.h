@@ -31,6 +31,8 @@ FS.h(SPIFFS-File system) - Included library
 Copyright (c) 2015 Ivan Grokhotkov. All rights reserved.
 Released under the GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
 
+Licence of Shinonome Font is Public Domain.
+Maintenance development of Font is /efont/.
 */
 
 #ifndef ShinonomeFONTread_h_

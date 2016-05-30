@@ -30,6 +30,9 @@ FS.h(SPIFFS-File system) - Included library
 -->https://github.com/esp8266/arduino-esp8266fs-plugin
 Copyright (c) 2015 Ivan Grokhotkov. All rights reserved.
 Released under the GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
+
+Licence of Shinonome Font is Public Domain.
+Maintenance development of Font is /efont/.
 */
 
 #include "Arduino.h"

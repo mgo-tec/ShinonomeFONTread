@@ -7,6 +7,18 @@ ver1.0
 
 予め、SPIFFSファイルシステムやOTAでフォントファイルをフラッシュにアップロードしておく必要があります。
 
+UTF-8 → Shift_JIS変換ライブラリと変換テーブルが必要です。
+
+また、SPIFFSファイルシステムライブラリも必要です。
+
+Licence:
+
+  MITライセンス
+
+  東雲フォントは/efont/さんが保守開発を行い、ライセンスはPublic Domainです。
+
+  Fs.h はLGPL ver2.1
+
 詳しくはブログ参照：
 
 https://www.mgo-tec.com
