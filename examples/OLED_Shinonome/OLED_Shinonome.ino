@@ -37,7 +37,7 @@ void setup() {
   Wire.begin(); // I2C initialise the connection
   Wire.setClock(400000L); //クロックはMax 400kHz
 
-  oled.Ini_OLED_SSD1306(OLED_Adress, 127);
+  oled.Ini_OLED_SSD1306(OLED_Adress, 127); //Contrast 0-255 default 127
 
   delay(300);
   
