@@ -9,7 +9,7 @@ ver1.0
 
 UTF-8 → Shift_JIS変換ライブラリと変換テーブルが必要です。
 
-また、SPIFFSファイルシステムライブラリも必要です。
+また、SPIFFSファイルシステムも必要です。（その中にFs.hライブラリがある為）
 
 Licence:
 
@@ -21,4 +21,4 @@ Licence:
 
 詳しくはブログ参照：
 
-https://www.mgo-tec.com
+https://www.mgo-tec.com/blog-entry-ssd1306-shinonome.html
