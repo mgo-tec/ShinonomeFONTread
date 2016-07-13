@@ -19,6 +19,8 @@ SjisToShinonome16FontRead_ALL　という関数を追加し、文字列を一括
 
 また、SPIFFSファイルopen、closeを使う個所を１か所にしたため、読み込みが早くなりました。
 
+JIS第２水準のアドレス変換が誤っていたのを修正しました。
+
 
 Licence:
 
