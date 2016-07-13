@@ -1,6 +1,6 @@
 /*
   ShinonomeFONTread.h - for ESP-WROOM-02 ( esp8266 )
-  Beta version 1.0
+  Beta version 1.3
   This is the Arduino library for reading Shinonome font. (For ESP8266) 
   
 The MIT License (MIT)
@@ -44,10 +44,13 @@ class ShinonomeFONTread
 {
 public:
   ShinonomeFONTread();
-  uint8_t SjisToShinonome16FontRead(const char* _FNT_file_16x16, const char* _FNT_file_8x16, uint8_t Direction, int16_t Angle, uint8_t jisH, uint8_t jisL, uint8_t* buf1, uint8_t* buf2);
-  void SjisToShinonomeFNTadrs(const char* _font_file, uint8_t jisH, uint8_t jisL, uint8_t* buf1, uint8_t* buf2);
-  void SPIFFS_Flash_ShinonomeFNTread(const char* _font_file, uint32_t addrs, uint8_t* buf1, uint8_t* buf2);
-  void SPIFFS_Flash_ShinonomeFNTread_Harf(const char* _font_file, uint32_t addrs, uint8_t* buf);
+  uint8_t SjisToShinonome16FontRead(const char* FNT_file_16x16, const char* FNT_file_8x16, uint8_t Direction, int16_t Angle, uint8_t jisH, uint8_t jisL, uint8_t* buf1, uint8_t* buf2);
+  void SjisToShinonome16FontRead_ALL(const char* FNT_file_16x16, const char* FNT_file_8x16, uint8_t Direction, int16_t Angle, uint8_t* Sjis, uint16_t sj_length, uint8_t font_buf[][16]);
+  void SjisToShinonomeFNTadrs(uint8_t jisH, uint8_t jisL, uint32_t* fnt_adrs);
+  void SPIFFS_Flash_ShinonomeFNTread(const char* font_file, uint32_t addrs, uint8_t* buf1, uint8_t* buf2);
+  void SPIFFS_Flash_ShinonomeFNTread_FHN(File ff, uint32_t addrs, uint8_t* buf1, uint8_t* buf2);
+  void SPIFFS_Flash_ShinonomeFNTread_Harf(const char* font_file, uint32_t addrs, uint8_t* buf);
+  void SPIFFS_Flash_ShinonomeFNTread_Harf_FHN(File ff, uint32_t addrs, uint8_t* buf);
 private:
 };
 
