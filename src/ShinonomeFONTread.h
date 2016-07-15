@@ -1,6 +1,6 @@
 /*
   ShinonomeFONTread.h - for ESP-WROOM-02 ( esp8266 )
-  Beta version 1.3
+  Beta version 1.31
   This is the Arduino library for reading Shinonome font. (For ESP8266) 
   
 The MIT License (MIT)

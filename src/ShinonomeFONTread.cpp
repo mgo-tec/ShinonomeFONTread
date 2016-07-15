@@ -1,6 +1,6 @@
 /*
   ShinonomeFONTread.cpp - for ESP-WROOM-02 ( esp8266 )
-  Beta version 1.3
+  Beta version 1.31
   This is the Arduino library for reading Shinonome font. (For ESP8266) 
   
 The MIT License (MIT)
@@ -86,6 +86,7 @@ void ShinonomeFONTread::SjisToShinonome16FontRead_ALL(const char* FNT_file_16x16
   File f2 = SPIFFS.open(FNT_file_8x16, "r"); //東雲フォント半角ファイル読み込み
   
   while(i < sj_length){
+    if(Sjis[i] < 0x20) Sjis[i] = 0x20; //制御コードは全てスペース
     if((Sjis[i]>=0x20 && Sjis[i]<=0x7E) || (Sjis[i]>=0xA1 && Sjis[i]<=0xDF)){
 
       if(Sjis[i]<=0x63) fnt_adrs_half = 0x1346+(Sjis[i]-0x20)*126;
@@ -93,7 +94,7 @@ void ShinonomeFONTread::SjisToShinonome16FontRead_ALL(const char* FNT_file_16x16
       else if(Sjis[i]>=0xA1) fnt_adrs_half = 0x4226+(Sjis[i]-0xA1)*129;
 
       ShinonomeFONTread::SPIFFS_Flash_ShinonomeFNTread_Harf_FHN(f2, fnt_adrs_half, font_buf[i]);
-
+      if(Sjis[i+1] < 0x20) Sjis[i+1] = 0x20; //制御コードは全てスペース
       if((Sjis[i+1]>=0x20 && Sjis[i+1]<=0x7E) || (Sjis[i+1]>=0xA1 && Sjis[i+1]<=0xDF)){
         if(Sjis[i+1]<=0x63) fnt_adrs_half = 0x1346+(Sjis[i+1]-0x20)*126;
         else if(Sjis[i+1]<=0x7E) fnt_adrs_half = 0x34BF+(Sjis[i+1]-0x64)*127;
@@ -169,10 +170,10 @@ void ShinonomeFONTread::SjisToShinonomeFNTadrs(uint8_t jisH, uint8_t jisL, uint3
         *fnt_adrs = (jisCode-0x889F)*165-2634348-(jisH-0xC9)*11055-(jisH-0xC9+1)*165;
       }
     }else{
-      *fnt_adrs = 467;  // 対応文字コードがなければ 全角スペースを返す
+      *fnt_adrs = 0x467;  // 対応文字コードがなければ 全角スペースを返す
     }
   }else {
-    *fnt_adrs = 467;  // 対応文字コードがなければ 全角スペースを返す
+    *fnt_adrs = 0x467;  // 対応文字コードがなければ 全角スペースを返す
   }
 }
 
