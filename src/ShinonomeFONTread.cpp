@@ -1,6 +1,6 @@
 /*
   ShinonomeFONTread.cpp - for ESP-WROOM-02 ( esp8266 )
-  Beta version 1.33
+  Beta version 1.40
   This is the Arduino library for reading Shinonome font. (For ESP8266) 
   
 The MIT License (MIT)
@@ -40,33 +40,89 @@ Maintenance development of Font is /efont/.
 
 ShinonomeFONTread::ShinonomeFONTread(){}
 
+//********東雲フォントライブラリ初期化　２ファイル*************************************************************
+void ShinonomeFONTread::SPIFFS_Shinonome_Init2F(const char* Shino_Half_Font_file, const char* Shino_Zen_Font_file){
+  SPIFFS.begin();
+
+  _SinoH = SPIFFS.open(Shino_Half_Font_file, "r");
+  if (!_SinoH) {
+    Serial.print(Shino_Half_Font_file);
+    Serial.print(" File not found");
+    return;
+  }else{
+    Serial.print(Shino_Half_Font_file);
+    Serial.println(" File read OK!");
+  }
+  _SinoZ = SPIFFS.open(Shino_Zen_Font_file, "r");
+  if (!_SinoZ) {
+    Serial.print(Shino_Zen_Font_file);
+    Serial.print(" File not found");
+    return;
+  }else{
+    Serial.print(Shino_Zen_Font_file);
+    Serial.println(" File read OK!");
+  }
+}
+//*********東雲フォントライブラリ初期化3ファイル*************************************************************
+void ShinonomeFONTread::SPIFFS_Shinonome_Init3F(const char* UTF8SJIS_file, const char* Shino_Half_Font_file, const char* Shino_Zen_Font_file)
+{
+  SPIFFS.begin();
+
+  Serial.println("card initialized.");
+  __UtoS = SPIFFS.open(UTF8SJIS_file, "r");
+  if (!__UtoS) {
+    Serial.print(UTF8SJIS_file);
+    Serial.println(" File not found");
+    return;
+  }else{
+    Serial.print(UTF8SJIS_file);
+    Serial.println(" File read OK!");
+  }
+  _SinoH = SPIFFS.open(Shino_Half_Font_file, "r");
+  if (!_SinoH) {
+    Serial.print(Shino_Half_Font_file);
+    Serial.print(" File not found");
+    return;
+  }else{
+    Serial.print(Shino_Half_Font_file);
+    Serial.println(" File read OK!");
+  }
+  _SinoZ = SPIFFS.open(Shino_Zen_Font_file, "r");
+  if (!_SinoZ) {
+    Serial.print(Shino_Zen_Font_file);
+    Serial.print(" File not found");
+    return;
+  }else{
+    Serial.print(Shino_Zen_Font_file);
+    Serial.println(" File read OK!");
+  }
+}
 //*******************東雲フォントメインクラス*************************************************************
 uint8_t ShinonomeFONTread::SjisToShinonome16FontRead(const char* FNT_file_16x16, const char* FNT_file_8x16, uint8_t Direction, int16_t Angle, uint8_t jisH, uint8_t jisL, uint8_t* buf1, uint8_t* buf2)
 {
   uint16_t fnt_adrs_half = 0x1346; //space
   uint32_t fnt_adrs_Zen = 0x467; //Space
   uint8_t cp;
-  
+
   if((jisH>=0x20 && jisH<=0x7E) || (jisH>=0xA1 && jisH<=0xDF)){
-    
+
     if(jisH<=0x63) fnt_adrs_half = 0x1346+(jisH-0x20)*126;
     else if(jisH<=0x7E) fnt_adrs_half = 0x34BF+(jisH-0x64)*127;
     else if(jisH>=0xA1) fnt_adrs_half = 0x4226+(jisH-0xA1)*129;
 
     ShinonomeFONTread::SPIFFS_Flash_ShinonomeFNTread_Harf(FNT_file_8x16, fnt_adrs_half, buf1);
-    
+
     cp = 1;
-    
+
     if((jisL>=0x20 && jisL<=0x7E) || (jisL>=0xA1 && jisL<=0xDF)){
       if(jisL<=0x63) fnt_adrs_half = 0x1346+(jisL-0x20)*126;
       else if(jisL<=0x7E) fnt_adrs_half = 0x34BF+(jisL-0x64)*127;
       else if(jisL>=0xA1) fnt_adrs_half = 0x4226+(jisL-0xA1)*129;
-      
+
       ShinonomeFONTread::SPIFFS_Flash_ShinonomeFNTread_Harf(FNT_file_8x16, fnt_adrs_half, buf2);
-      
+
       cp = 2;
     }else{
-      
       cp = 1;
     }
   }else{
@@ -77,14 +133,26 @@ uint8_t ShinonomeFONTread::SjisToShinonome16FontRead(const char* FNT_file_16x16,
   return cp;
 }
 //*************S-jisまとめて変換*****************************************
+void ShinonomeFONTread::SjisToShinonome16FontRead_ALL(uint8_t* Sjis, uint16_t sj_length, uint8_t font_buf[][16]){
+  ShinonomeFONTread::FontRead_ALL_nofile(_SinoZ, _SinoH, Sjis, sj_length, font_buf);
+}
+//*************S-jisまとめて変換*****************************************
 void ShinonomeFONTread::SjisToShinonome16FontRead_ALL(const char* FNT_file_16x16, const char* FNT_file_8x16, uint8_t Direction, int16_t Angle, uint8_t* Sjis, uint16_t sj_length, uint8_t font_buf[][16])
 {
+  File f1 = SPIFFS.open(FNT_file_16x16, "r"); //東雲フォント全角ファイル読み込み
+  File f2 = SPIFFS.open(FNT_file_8x16, "r"); //東雲フォント半角ファイル読み込み
+
+  ShinonomeFONTread::FontRead_ALL_nofile(f1, f2, Sjis, sj_length, font_buf);
+
+  f1.close();
+  f2.close();
+}
+//*************S-jisまとめて変換*****************************************
+void ShinonomeFONTread::FontRead_ALL_nofile(File f1, File f2, uint8_t* Sjis, uint16_t sj_length, uint8_t font_buf[][16]){
   uint16_t fnt_adrs_half = 0x1346; //space
   uint32_t fnt_adrs_Zen = 0x467; //Space
   uint16_t i = 0;
-  File f1 = SPIFFS.open(FNT_file_16x16, "r"); //東雲フォント全角ファイル読み込み
-  File f2 = SPIFFS.open(FNT_file_8x16, "r"); //東雲フォント半角ファイル読み込み
-  
+
   while(i < sj_length){
     if(Sjis[i] < 0x20) Sjis[i] = 0x20; //制御コードは全てスペース
     if((Sjis[i]>=0x20 && Sjis[i]<=0x7E) || (Sjis[i]>=0xA1 && Sjis[i]<=0xDF)){
@@ -106,7 +174,6 @@ void ShinonomeFONTread::SjisToShinonome16FontRead_ALL(const char* FNT_file_16x16
       }else{
         i++;
       }
-      
     }else{
       ShinonomeFONTread::SjisToShinonomeFNTadrs(Sjis[i], Sjis[i+1], &fnt_adrs_Zen);
       ShinonomeFONTread::SPIFFS_Flash_ShinonomeFNTread_FHN(f1, fnt_adrs_Zen, font_buf[i], font_buf[i+1]);
@@ -114,15 +181,13 @@ void ShinonomeFONTread::SjisToShinonome16FontRead_ALL(const char* FNT_file_16x16
     }
 		yield();
   }
-  f1.close();
-  f2.close();
 }
 //*******************Shift_JISコードから東雲フォントアドレス計算********************************************
 void ShinonomeFONTread::SjisToShinonomeFNTadrs(uint8_t jisH, uint8_t jisL, uint32_t* fnt_adrs) 
 {    // S-JISコードから東雲フォントファイル上のバイト位置をポインタで返す。
   uint16_t jisCode;
   int32_t adj;
-  
+
   if( jisH != '\0'){  //'\0'ならば読み込まない。
     jisCode = ((uint16_t)jisH << 8 )|jisL;
     if(jisCode>=0x8140 && jisCode <=0x83D6){
@@ -177,7 +242,6 @@ void ShinonomeFONTread::SjisToShinonomeFNTadrs(uint8_t jisH, uint8_t jisL, uint3
     *fnt_adrs = 0x467;  // 対応文字コードがなければ 全角スペースを返す
   }
 }
-
 //*****************全角フォントファイル読み込み**************************************
 void ShinonomeFONTread::SPIFFS_Flash_ShinonomeFNTread(const char* font_file, uint32_t addrs, uint8_t* buf1, uint8_t* buf2)
 {
@@ -191,7 +255,6 @@ void ShinonomeFONTread::SPIFFS_Flash_ShinonomeFNTread(const char* font_file, uin
     f1.seek(addrs,SeekSet);
     f1.readBytes(c,80); //4byte+"." -->5byte*16=80byte
     for (i=0; i<16; i++){
-
       if(c[j]>=0x61) c1 = (c[j]-0x61)+10;
       else c1 = c[j]-0x30;
       if(c[j+1]>=0x61) c2 = (c[j+1]-0x61)+10;
@@ -204,7 +267,6 @@ void ShinonomeFONTread::SPIFFS_Flash_ShinonomeFNTread(const char* font_file, uin
       buf1[i] = (c1<<4)|c2;
       buf2[i] = (c3<<4)|c4;
       j=j+5;
-
     }
     f1.close();
   }else{
@@ -225,7 +287,6 @@ void ShinonomeFONTread::SPIFFS_Flash_ShinonomeFNTread_FHN(File ff, uint32_t addr
     ff.seek(addrs,SeekSet);
     ff.readBytes(c,80); //4byte+"." -->5byte*16=80byte
     for (i=0; i<16; i++){
-
       if(c[j]>=0x61) c1 = (c[j]-0x61)+10;
       else c1 = c[j]-0x30;
       if(c[j+1]>=0x61) c2 = (c[j+1]-0x61)+10;
@@ -238,7 +299,6 @@ void ShinonomeFONTread::SPIFFS_Flash_ShinonomeFNTread_FHN(File ff, uint32_t addr
       buf1[i] = (c1<<4)|c2;
       buf2[i] = (c3<<4)|c4;
       j=j+5;
-
     }
   }else{
     Serial.println(F(" file has not been uploaded to the flash in SPIFFS file system"));
@@ -258,7 +318,6 @@ void ShinonomeFONTread::SPIFFS_Flash_ShinonomeFNTread_Harf(const char* font_file
     f1.seek(addrs,SeekSet);
     f1.readBytes(c,48); //2byte+"." -->3byte*16=48byte
     for (i=0; i<16; i++){
-
       if(c[j]>=0x61) c1 = (c[j]-0x61)+10;
       else c1 = c[j]-0x30;
       if(c[j+1]>=0x61) c2 = (c[j+1]-0x61)+10;
@@ -267,7 +326,6 @@ void ShinonomeFONTread::SPIFFS_Flash_ShinonomeFNTread_Harf(const char* font_file
       buf[i] = (c1<<4)|c2;
 
       j=j+3;
-
     }
     f1.close();
   }else{
@@ -284,7 +342,7 @@ void ShinonomeFONTread::SPIFFS_Flash_ShinonomeFNTread_Harf_FHN(File ff, uint32_t
   uint8_t j=0;
   uint8_t c1, c2;
   char c[50];
-  
+
   if(ff){
     ff.seek(addrs,SeekSet);
     ff.readBytes(c,48); //2byte+"." -->3byte*16=48byte
@@ -298,10 +356,60 @@ void ShinonomeFONTread::SPIFFS_Flash_ShinonomeFNTread_Harf_FHN(File ff, uint32_t
       buf[i] = (c1<<4)|c2;
 
       j=j+3;
-
     }
   }else{
     Serial.println(F(" file has not been uploaded to the flash in SPIFFS file system"));
     delay(30000);
   }
+}
+//*******************Shift_JIS フォント変換、自動インクリメント*************************************************************
+uint8_t ShinonomeFONTread::Sjis_inc_FntRead(const char* FNT_file_16x16, const char* FNT_file_8x16, uint8_t *sj, uint16_t length, uint16_t *sj_cnt, uint8_t buf[2][16]){
+  uint8_t cp;
+  File f1 = SPIFFS.open(FNT_file_16x16, "r"); //東雲フォント全角ファイル読み込み
+  File f2 = SPIFFS.open(FNT_file_8x16, "r"); //東雲フォント半角ファイル読み込み
+
+  cp = ShinonomeFONTread::Sj_inc_read(f1, f2, sj, length, sj_cnt, buf);
+
+  f1.close();
+  f2.close();
+  return cp;
+}
+//*******************Shift_JIS フォント変換、自動インクリメント*************************************************************
+uint8_t ShinonomeFONTread::Sjis_inc_FntRead(uint8_t *sj, uint16_t length, uint16_t *sj_cnt, uint8_t buf[2][16]){
+  return ShinonomeFONTread::Sj_inc_read(_SinoZ, _SinoH, sj, length, sj_cnt, buf);
+}
+//*******************Shift_JIS フォント変換、自動インクリメント*************************************************************
+uint8_t ShinonomeFONTread::Sj_inc_read(File f1, File f2, uint8_t *sj, uint16_t length, uint16_t *sj_cnt, uint8_t buf[2][16]){
+  uint16_t fnt_adrs_half = 0x1346; //space
+  uint32_t fnt_adrs_Zen = 0x467; //Space
+  uint8_t cp;
+
+  if((*(sj + *sj_cnt)>=0x20 && *(sj + *sj_cnt)<=0x7E) || (*(sj + *sj_cnt)>=0xA1 && *(sj + *sj_cnt)<=0xDF)){
+    if(*(sj + *sj_cnt)<=0x63) fnt_adrs_half = 0x1346+(*(sj + *sj_cnt)-0x20)*126;
+    else if(*(sj + *sj_cnt)<=0x7E) fnt_adrs_half = 0x34BF+(*(sj + *sj_cnt)-0x64)*127;
+    else if(*(sj + *sj_cnt)>=0xA1) fnt_adrs_half = 0x4226+(*(sj + *sj_cnt)-0xA1)*129;
+
+    ShinonomeFONTread::SPIFFS_Flash_ShinonomeFNTread_Harf_FHN(f2, fnt_adrs_half, buf[0]);
+    cp = 1;
+
+    if((*(sj + *sj_cnt+1)>=0x20 && *(sj + *sj_cnt+1)<=0x7E) || (*(sj + *sj_cnt+1)>=0xA1 && *(sj + *sj_cnt+1)<=0xDF)){
+      if(*(sj + *sj_cnt+1)<=0x63) fnt_adrs_half = 0x1346+(*(sj + *sj_cnt+1)-0x20)*126;
+      else if(*(sj + *sj_cnt+1)<=0x7E) fnt_adrs_half = 0x34BF+(*(sj + *sj_cnt+1)-0x64)*127;
+      else if(*(sj + *sj_cnt+1)>=0xA1) fnt_adrs_half = 0x4226+(*(sj + *sj_cnt+1)-0xA1)*129;
+
+      ShinonomeFONTread::SPIFFS_Flash_ShinonomeFNTread_Harf_FHN(f2, fnt_adrs_half, buf[1]);
+      cp = 2;
+    }else{
+      cp = 1;
+    }
+  }else{
+    ShinonomeFONTread::SjisToShinonomeFNTadrs(*(sj + *sj_cnt), *(sj + *sj_cnt+1), &fnt_adrs_Zen);
+    ShinonomeFONTread::SPIFFS_Flash_ShinonomeFNTread_FHN(f1, fnt_adrs_Zen, buf[0], buf[1]);
+    cp = 2;
+  }
+
+  *sj_cnt = *sj_cnt + cp;
+  if(*sj_cnt >= length) *sj_cnt = 0;
+
+  return cp;
 }

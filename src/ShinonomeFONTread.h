@@ -1,6 +1,6 @@
 /*
   ShinonomeFONTread.h - for ESP-WROOM-02 ( esp8266 )
-  Beta version 1.33
+  Beta version 1.40
   This is the Arduino library for reading Shinonome font. (For ESP8266) 
   
 The MIT License (MIT)
@@ -39,19 +39,34 @@ Maintenance development of Font is /efont/.
 #define ShinonomeFONTread_h_
 #include "Arduino.h"
 #include "FS.h"
+#include "UTF8toSJIS.h" // beta ver1.50
+
+extern File __UtoS;
 
 class ShinonomeFONTread
 {
 public:
   ShinonomeFONTread();
+
+  void SPIFFS_Shinonome_Init2F(const char* Shino_Half_Font_file, const char* Shino_Zen_Font_file);
+  void SPIFFS_Shinonome_Init3F(const char* UTF8SJIS_file, const char* Shino_Half_Font_file, const char* Shino_Zen_Font_file);
+
   uint8_t SjisToShinonome16FontRead(const char* FNT_file_16x16, const char* FNT_file_8x16, uint8_t Direction, int16_t Angle, uint8_t jisH, uint8_t jisL, uint8_t* buf1, uint8_t* buf2);
+  void SjisToShinonome16FontRead_ALL(uint8_t* Sjis, uint16_t sj_length, uint8_t font_buf[][16]);
+  void FontRead_ALL_nofile(File f1, File f2, uint8_t* Sjis, uint16_t sj_length, uint8_t font_buf[][16]);
   void SjisToShinonome16FontRead_ALL(const char* FNT_file_16x16, const char* FNT_file_8x16, uint8_t Direction, int16_t Angle, uint8_t* Sjis, uint16_t sj_length, uint8_t font_buf[][16]);
   void SjisToShinonomeFNTadrs(uint8_t jisH, uint8_t jisL, uint32_t* fnt_adrs);
   void SPIFFS_Flash_ShinonomeFNTread(const char* font_file, uint32_t addrs, uint8_t* buf1, uint8_t* buf2);
   void SPIFFS_Flash_ShinonomeFNTread_FHN(File ff, uint32_t addrs, uint8_t* buf1, uint8_t* buf2);
   void SPIFFS_Flash_ShinonomeFNTread_Harf(const char* font_file, uint32_t addrs, uint8_t* buf);
   void SPIFFS_Flash_ShinonomeFNTread_Harf_FHN(File ff, uint32_t addrs, uint8_t* buf);
+  uint8_t Sjis_inc_FntRead(const char* FNT_file_16x16, const char* FNT_file_8x16, uint8_t *sj, uint16_t length, uint16_t *sj_cnt, uint8_t buf[2][16]);
+  uint8_t Sjis_inc_FntRead(uint8_t *sj, uint16_t length, uint16_t *sj_cnt, uint8_t buf[2][16]);
+  uint8_t Sj_inc_read(File f1, File f2, uint8_t *sj, uint16_t length, uint16_t *sj_cnt, uint8_t buf[2][16]);
+
 private:
+  File _SinoZ;
+  File _SinoH;
 };
 
 #endif
